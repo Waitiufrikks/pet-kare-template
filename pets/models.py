@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class PetSexOptions(models.TextChoices):
     FEMALE = "Female"
     MALE = "Male"
@@ -10,14 +9,15 @@ class PetSexOptions(models.TextChoices):
 
 class Pet(models.Model):
     name = models.CharField(max_length=50)
-    age = models.IntegerField(null=True)
-    weight = models.FloatField(null=True)
+    age = models.IntegerField()
+    weight = models.FloatField()
     sex = models.CharField(
         max_length=20,
-        choices=PetSexOptions.choices, 
-        default=PetSexOptions.OTHER
+        blank=True,
+        choices=PetSexOptions.choices,
+        default=PetSexOptions.OTHER,
     )
-    
+    traits = models.ManyToManyField("traits.Trait", related_name="pet")
     group = models.ForeignKey(
         "groups.Group", on_delete=models.PROTECT, related_name="pets"
     )
