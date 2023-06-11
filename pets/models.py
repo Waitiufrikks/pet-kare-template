@@ -21,3 +21,8 @@ class Pet(models.Model):
     group = models.ForeignKey(
         "groups.Group", on_delete=models.PROTECT, related_name="pets"
     )
+    def __repr__(self) -> str:
+        return (
+            f"Pet(name='{self.name}'"
+            f"traits={self.traits.all()}, group={self.group})"
+        )
