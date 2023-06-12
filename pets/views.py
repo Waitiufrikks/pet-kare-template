@@ -33,6 +33,10 @@ class PetView(APIView, PageNumberPagination):
 
     def get(self, request: Request) -> Response:
         pets = Pet.objects.all()
+        trait_name = request.query_params.get("trait")
+
+        if trait_name:
+            pets = pets.filter(traits__name__iexact=trait_name)
 
         result_page = self.paginate_queryset(pets, request)
         serializer = PetSerializer(instance=result_page, many=True)
