@@ -62,20 +62,23 @@ class PetDetail(APIView):
         traits = serializer.validated_data.pop("traits", None)
 
         if group:
-            group_obj, _ = Group.objects.get_or_create(pets=pet_found)
-            for key, value in group.items():
-                setattr(group_obj, key, value)
-            group_obj.save()
+            group_obj = Group.objects.filter(
+                scientific_name__iexact=group["scientific_name"]
+            ).first()
+            if not group_obj:
+                group_obj = Group.objects.create(**group)
+            pet_found.group = group_obj
 
         if traits:
+            trait_list = []
             for trait in traits:
-                trait_name = trait.get("name")
-                trait_obj, _ = Trait.objects.get_or_create(name=trait_name)
-                pet_found.traits.add(trait_obj)
+                trait_obj = Trait.objects.filter(name__iexact=trait["name"]).first()
+                if not trait_obj:
+                    trait_obj = Trait.objects.create(**trait)
+                trait_list.append(trait_obj)
+            pet_found.traits.set(trait_list)
 
         for key, value in serializer.validated_data.items():
-            if key == "sex" and value not in choices:
-                return Response({"sex": [f'"{value}" is not a valid choice.']}, 400)
             setattr(pet_found, key, value)
 
         pet_found.save()
